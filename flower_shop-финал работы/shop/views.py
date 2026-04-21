@@ -1,4 +1,4 @@
-# shop/views.py - полная версия с POST методом для заказов
+
 
 import json
 import logging
@@ -15,8 +15,36 @@ from .models import User, Flower, Cart, CartItem, Favorite, Order, OrderItem
 from .serializers import FlowerSerializer
 
 logger = logging.getLogger(__name__)
+import logging
 
-# ========== ТЕСТОВЫЙ ЭНДПОИНТ ==========
+
+logger = logging.getLogger(__name__)
+
+
+logger.info("=" * 50)
+logger.info("МОДУЛЬ VIEWS ЗАГРУЖЕН")
+logger.info("=" * 50)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def test_api(request):
+    """Тестовый эндпоинт с логированием"""
+    
+    # ТЕСТОВЫЕ ЛОГИ
+    logger.debug("DEBUG: Вызван test_api")
+    logger.info("INFO: Вызван test_api")
+    logger.warning("WARNING: Вызван test_api")
+    logger.error("ERROR: Вызван test_api")
+    
+    print("PRINT: test_api вызван") 
+    
+    return Response({
+        'status': 'ok',
+        'message': 'API работает',
+        'logs_written': True
+    })
+
+
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -36,7 +64,7 @@ def test_api(request):
         ]
     })
 
-# ========== АУТЕНТИФИКАЦИЯ ==========
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -99,7 +127,7 @@ def login_user(request):
         logger.error(f"Login error: {e}")
         return Response({'error': str(e)}, status=500)
 
-# ========== ПРОФИЛЬ ==========
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -145,14 +173,14 @@ def upload_avatar(request, user_id):
         logger.error(f"Upload avatar error: {e}")
         return Response({'error': str(e)}, status=500)
 
-# ========== ТОВАРЫ ==========
+
 
 class FlowerViewSet(viewsets.ModelViewSet):
     queryset = Flower.objects.all()
     serializer_class = FlowerSerializer
     permission_classes = [AllowAny]
 
-# ========== КОРЗИНА ==========
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -270,7 +298,7 @@ def remove_from_cart(request):
         logger.error(f"Remove from cart error: {e}")
         return Response({'error': str(e)}, status=500)
 
-# ========== ИЗБРАННОЕ ==========
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -334,18 +362,18 @@ def remove_from_favorites(request):
         logger.error(f"Remove from favorites error: {e}")
         return Response({'error': str(e)}, status=500)
 
-# ========== ЗАКАЗЫ ==========
 
-# shop/views.py - исправьте функцию get_orders
 
-@api_view(['GET', 'POST'])  # ДОБАВЛЯЕМ POST
+
+
+@api_view(['GET', 'POST'])  
 @permission_classes([IsAuthenticated])
 def get_orders(request):
-    # Если это POST запрос - создаем заказ
+   
     if request.method == 'POST':
         return create_order(request)
     
-    # GET запрос - получаем заказы
+    
     try:
         user_id = request.query_params.get('userId')
         

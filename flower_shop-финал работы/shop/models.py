@@ -1,4 +1,4 @@
-# shop/models.py - обновленная версия
+
 
 from django.db import models
 from django.contrib.auth.models import AbstractUser
@@ -19,7 +19,6 @@ class User(AbstractUser):
         return self.username
 
 class Flower(models.Model):
-    # Определяем варианты категорий
     CATEGORY_CHOICES = [
         ('romantic', 'Романтические'),
         ('wedding', 'Свадебные'),
@@ -61,15 +60,11 @@ class Flower(models.Model):
         ordering = ['-created_at']
     
     def save(self, *args, **kwargs):
-        # Автоматически заполняем category_slug при сохранении
         self.category_slug = self.category
         super().save(*args, **kwargs)
     
     def __str__(self):
         return self.name
-
-# Остальные модели (Cart, CartItem, Favorite, Order, OrderItem) остаются без изменений
-# ... добавьте их из предыдущих файлов
 
 class Cart(models.Model):
     user = models.OneToOneField(
@@ -171,64 +166,6 @@ class Order(models.Model):
     
     def __str__(self):
         return f'Заказ #{self.id} - {self.user.username}'
-
-class OrderItem(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_items')
-    flower = models.ForeignKey(Flower, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField('Количество', default=1)
-    price_at_time = models.DecimalField(
-        'Цена в момент заказа', 
-        max_digits=10, 
-        decimal_places=2, 
-        default=0
-    )
-    
-    class Meta:
-        db_table = 'order_items'
-        verbose_name = 'Элемент заказа'
-        verbose_name_plural = 'Элементы заказа'
-    
-    def get_total_price(self):
-        if self.price_at_time and self.quantity:
-            return self.price_at_time * self.quantity
-        return 0
-    
-    def save(self, *args, **kwargs):
-        # Автоматически устанавливаем цену из цветка, если не указана
-        if not self.price_at_time and self.flower:
-            self.price_at_time = self.flower.price
-        super().save(*args, **kwargs)
-class Order(models.Model):
-    STATUS_CHOICES = [
-        ('pending', 'Ожидает обработки'),
-        ('confirmed', 'Подтвержден'),
-        ('shipped', 'Отправлен'),
-        ('delivered', 'Доставлен'),
-        ('cancelled', 'Отменен'),
-    ]
-    
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
-    total_price = models.DecimalField(
-        'Итоговая сумма', 
-        max_digits=10, 
-        decimal_places=2, 
-        default=0
-    )
-    status = models.CharField('Статус', max_length=20, choices=STATUS_CHOICES, default='pending')
-    address = models.TextField('Адрес доставки')
-    phone = models.CharField('Телефон', max_length=20)
-    comment = models.TextField('Комментарий к заказу', blank=True, default='')
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    
-    class Meta:
-        db_table = 'orders'
-        verbose_name = 'Заказ'
-        verbose_name_plural = 'Заказы'
-        ordering = ['-created_at']
-    
-    def __str__(self):
-        return f'Заказ #{self.id} - {self.user.username}'
     
     def create_from_cart(self):
         """Создает элементы заказа из корзины пользователя"""
@@ -252,7 +189,7 @@ class Order(models.Model):
             self.total_price = total
             self.save()
             
-            # Очищаем корзину после создания заказа
+            
             cart.cart_items.all().delete()
             
             return True
@@ -263,7 +200,7 @@ class Order(models.Model):
         """Обновляет итоговую сумму заказа"""
         total = sum(item.get_total_price() for item in self.order_items.all())
         self.total_price = total
-        self.save()
+        self.save(update_fields=['total_price'])
         return total
 
 class OrderItem(models.Model):
@@ -291,12 +228,17 @@ class OrderItem(models.Model):
         if not self.price_at_time and self.flower:
             self.price_at_time = self.flower.price
         super().save(*args, **kwargs)
-        # Обновляем общую сумму заказа
-        if self.order:
-            self.order.update_total_price()
+        
+        if self.order_id:
+            Order.objects.filter(id=self.order_id).update(
+                total_price=models.F('total_price') + self.get_total_price()
+            )
     
     def delete(self, *args, **kwargs):
-        order = self.order
+        order_id = self.order_id
+        item_total = self.get_total_price()
         super().delete(*args, **kwargs)
-        if order:
-            order.update_total_price()
+        if order_id:
+            order = Order.objects.get(id=order_id)
+            order.total_price = order.total_price - item_total
+            order.save(update_fields=['total_price'])

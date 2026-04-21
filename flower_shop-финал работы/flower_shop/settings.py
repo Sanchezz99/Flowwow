@@ -1,4 +1,3 @@
-# flower_shop/settings.py - ПОЛНАЯ ВЕРСИЯ С ИСПРАВЛЕНИЯМИ
 
 import os
 from pathlib import Path
@@ -6,16 +5,16 @@ from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: keep the secret key used in production secret!
+
 SECRET_KEY = 'django-insecure-your-secret-key-here'
 
-# SECURITY WARNING: don't run with debug turned on in production!
+
 DEBUG = True
 
-# Разрешаем все хосты для разработки
+
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*']
 
-# ========== УСТАНОВЛЕННЫЕ ПРИЛОЖЕНИЯ ==========
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -29,8 +28,7 @@ INSTALLED_APPS = [
     'shop',
 ]
 
-# ========== MIDDLEWARE ==========
-# ВАЖНО: CorsMiddleware должен быть первым!
+
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -62,7 +60,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'flower_shop.wsgi.application'
 
-# ========== БАЗА ДАННЫХ ==========
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -70,10 +68,10 @@ DATABASES = {
     }
 }
 
-# ========== ПОЛЬЗОВАТЕЛЬСКАЯ МОДЕЛЬ ==========
+
 AUTH_USER_MODEL = 'shop.User'
 
-# ========== ВАЛИДАЦИЯ ПАРОЛЕЙ ==========
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -90,13 +88,13 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# ========== ИНТЕРНАЦИОНАЛИЗАЦИЯ ==========
+
 LANGUAGE_CODE = 'ru-ru'
 TIME_ZONE = 'Europe/Moscow'
 USE_I18N = True
 USE_TZ = True
 
-# ========== СТАТИЧЕСКИЕ И МЕДИА ФАЙЛЫ ==========
+
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'frontend'),
@@ -107,7 +105,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# ========== REST FRAMEWORK НАСТРОЙКИ ==========
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -117,21 +115,21 @@ REST_FRAMEWORK = {
     ),
 }
 
-# ========== JWT НАСТРОЙКИ ==========
+
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=7),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
 }
 
-# ========== CORS НАСТРОЙКИ (РАЗРЕШИТЬ ВСЕ ДОМЕНЫ) ==========
 
-# Основная настройка - разрешить все источники
+
+
 CORS_ALLOW_ALL_ORIGINS = True
 
-# Разрешить передачу учетных данных (куки, авторизация)
+
 CORS_ALLOW_CREDENTIALS = True
 
-# Разрешенные методы HTTP
+
 CORS_ALLOW_METHODS = [
     'DELETE',
     'GET',
@@ -141,7 +139,7 @@ CORS_ALLOW_METHODS = [
     'PUT',
 ]
 
-# Разрешенные заголовки
+
 CORS_ALLOW_HEADERS = [
     'accept',
     'accept-encoding',
@@ -154,9 +152,9 @@ CORS_ALLOW_HEADERS = [
     'x-requested-with',
 ]
 
-# ========== CSRF НАСТРОЙКИ ==========
 
-# Доверенные источники для CSRF защиты
+
+
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:5500',
     'http://127.0.0.1:5500',
@@ -164,16 +162,16 @@ CSRF_TRUSTED_ORIGINS = [
     'http://127.0.0.1:8000',
 ]
 
-# Настройки CSRF кук
-CSRF_COOKIE_HTTPONLY = True  # Чтобы JavaScript мог читать CSRF-токен
+
+CSRF_COOKIE_HTTPONLY = True 
 CSRF_COOKIE_SAMESITE = 'Lax'
 
-# ========== БЕЗОПАСНОСТЬ (ОТКЛЮЧЕНО ДЛЯ РАЗРАБОТКИ) ==========
+
 SECURE_SSL_REDIRECT = False
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
 
-# ========== ЛОГИРОВАНИЕ ==========
+
 LOGS_DIR = BASE_DIR / 'logs'
 LOGS_DIR.mkdir(exist_ok=True)
 
@@ -222,3 +220,22 @@ LOGGING = {
         },
     },
 }
+
+import logging
+
+
+logger = logging.getLogger('django')
+logger.info("=" * 60)
+logger.info("DJANGO ЗАПУЩЕН - ЛОГИРОВАНИЕ РАБОТАЕТ")
+logger.info(f"DEBUG: {DEBUG}")
+logger.info(f"LOGS_DIR: {LOGS_DIR}")
+logger.info("=" * 60)
+
+
+log_file = LOGS_DIR / 'django.log'
+try:
+    with open(log_file, 'a', encoding='utf-8') as f:
+        f.write(f"[INFO] {__import__('datetime').datetime.now()} Django запущен\n")
+    print(f"✅ Прямая запись в {log_file} выполнена")
+except Exception as e:
+    print(f"❌ Ошибка прямой записи: {e}")

@@ -1,15 +1,12 @@
-# shop/admin.py - полная версия с управлением всеми моделями
+
 
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django import forms
-from django.utils.html import format_html
-from django.urls import path
-from django.http import HttpResponseRedirect
-from django.contrib import messages
+from django.utils.html import format_html, mark_safe
 from .models import User, Flower, Cart, CartItem, Favorite, Order, OrderItem
 
-# ========== ФОРМА ДЛЯ ЦВЕТОВ ==========
+
 
 class FlowerAdminForm(forms.ModelForm):
     category = forms.ChoiceField(
@@ -22,7 +19,7 @@ class FlowerAdminForm(forms.ModelForm):
         model = Flower
         fields = '__all__'
 
-# ========== НАСТРОЙКА ПОЛЬЗОВАТЕЛЕЙ ==========
+
 
 class CustomUserAdmin(UserAdmin):
     list_display = ('username', 'email', 'phone', 'address', 'is_staff', 'created_at')
@@ -39,7 +36,7 @@ class CustomUserAdmin(UserAdmin):
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related('groups', 'user_permissions')
 
-# ========== НАСТРОЙКА ЦВЕТОВ ==========
+
 
 class FlowerAdmin(admin.ModelAdmin):
     form = FlowerAdminForm
@@ -71,7 +68,7 @@ class FlowerAdmin(admin.ModelAdmin):
     def get_image_preview(self, obj):
         if obj.image:
             return format_html('<img src="{}" style="width: 50px; height: 50px; object-fit: cover;" />', obj.image.url)
-        return "Нет фото"
+        return mark_safe('<span>Нет фото</span>')
     get_image_preview.short_description = 'Фото'
     
     def get_category_display(self, obj):
@@ -79,7 +76,6 @@ class FlowerAdmin(admin.ModelAdmin):
     get_category_display.short_description = 'Категория'
     get_category_display.admin_order_field = 'category'
     
-    # Действия для массового обновления
     actions = ['mark_as_popular', 'mark_as_not_popular', 'mark_as_new', 'mark_as_not_new', 'increase_price', 'decrease_price']
     
     def mark_as_popular(self, request, queryset):
@@ -107,16 +103,16 @@ class FlowerAdmin(admin.ModelAdmin):
             flower.price = flower.price * 1.1
             flower.save()
         self.message_user(request, f'Цены увеличены на 10% для {queryset.count()} товаров')
-    increase_price.short_description = 'Увеличить цену на 10%'
+    increase_price.short_description = 'Увеличить цену на 10 процентов'
     
     def decrease_price(self, request, queryset):
         for flower in queryset:
             flower.price = flower.price * 0.9
             flower.save()
         self.message_user(request, f'Цены уменьшены на 10% для {queryset.count()} товаров')
-    decrease_price.short_description = 'Уменьшить цену на 10%'
+    decrease_price.short_description = 'Уменьшить цену на 10 процентов'
 
-# ========== НАСТРОЙКА КОРЗИНЫ ==========
+
 
 class CartItemInline(admin.TabularInline):
     model = CartItem
@@ -169,21 +165,21 @@ class CartAdmin(admin.ModelAdmin):
     def get_items_list(self, obj):
         items = obj.cart_items.all()
         if not items:
-            return "Корзина пуста"
+            return mark_safe('<span>Корзина пуста</span>')
         
         html = '<table style="width:100%; border-collapse: collapse;">'
-        html += '<tr style="background-color: #f2f2f2;"><th>Товар</th><th>Кол-во</th><th>Цена</th><th>Сумма</th></tr>'
+        html += '<tr style="background-color: #f2f2f2;"><th>Товар</th><th>Кол-во</th><th>Цена</th><th>Сумма</th><tr>'
+        
         for item in items:
-            html += f'''
-            <tr>
-                <td style="padding: 8px; border-bottom: 1px solid #ddd;">{item.flower.name}</td>
-                <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: center;">{item.quantity}</td>
-                <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">{item.flower.price:.2f} ₽</td>
-                <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;"><strong>{item.get_total_price():.2f} ₽</strong></td>
-            </tr>
-            '''
+            html += '<tr>'
+            html += '<td style="padding: 8px; border-bottom: 1px solid #ddd;">' + str(item.flower.name) + '</td>'
+            html += '<td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: center;">' + str(item.quantity) + '</td>'
+            html += '<td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">' + f'{item.flower.price:.2f}' + ' ₽</td>'
+            html += '<td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;"><strong>' + f'{item.get_total_price():.2f}' + ' ₽</strong></td>'
+            html += '</tr>'
+        
         html += '</table>'
-        return format_html(html)
+        return mark_safe(html)
     get_items_list.short_description = 'Состав корзины'
     
     actions = ['clear_cart']
@@ -194,7 +190,7 @@ class CartAdmin(admin.ModelAdmin):
         self.message_user(request, f'Корзины очищены для {queryset.count()} пользователей')
     clear_cart.short_description = 'Очистить выбранные корзины'
 
-# ========== НАСТРОЙКА ИЗБРАННОГО ==========
+
 
 class FavoriteAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'flower', 'created_at')
@@ -202,18 +198,8 @@ class FavoriteAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'user__email', 'flower__name')
     raw_id_fields = ('user', 'flower')
     readonly_fields = ('created_at',)
-    
-    fieldsets = (
-        ('Информация об избранном', {
-            'fields': ('user', 'flower')
-        }),
-        ('Системная информация', {
-            'fields': ('created_at',),
-            'classes': ('collapse',)
-        }),
-    )
 
-# ========== НАСТРОЙКА ЗАКАЗОВ ==========
+
 
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
@@ -221,7 +207,6 @@ class OrderItemInline(admin.TabularInline):
     readonly_fields = ('flower', 'flower_name', 'quantity', 'price_at_time', 'get_total_price')
     raw_id_fields = ('flower',)
     can_delete = True
-    show_change_link = True
     fields = ('flower', 'flower_name', 'quantity', 'price_at_time', 'get_total_price')
     
     def flower_name(self, obj):
@@ -235,7 +220,10 @@ class OrderItemInline(admin.TabularInline):
     get_total_price.short_description = 'Сумма'
     
     def has_add_permission(self, request, obj=None):
-        return False
+        return True
+    
+    def has_delete_permission(self, request, obj=None):
+        return True
 
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'total_price', 'status', 'get_items_count', 'phone', 'created_at')
@@ -263,34 +251,29 @@ class OrderAdmin(admin.ModelAdmin):
     def get_items_count(self, obj):
         return obj.order_items.count()
     get_items_count.short_description = 'Товаров'
-    get_items_count.admin_order_field = 'order_items__count'
     
     def get_items_display(self, obj):
         items = obj.order_items.select_related('flower').all()
         if not items:
-            return "Нет товаров"
+            return mark_safe('<span>Нет товаров</span>')
         
         html = '<table style="width:100%; border-collapse: collapse;">'
         html += '<tr style="background-color: #f2f2f2;"><th>Товар</th><th>Кол-во</th><th>Цена</th><th>Сумма</th></tr>'
         
         for item in items:
-            html += f'''
-            <tr>
-                <td style="padding: 8px; border-bottom: 1px solid #ddd;">{item.flower.name}</td>
-                <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: center;">{item.quantity}</td>
-                <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">{item.price_at_time:.2f} ₽</td>
-                <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;"><strong>{item.get_total_price():.2f} ₽</strong></td>
-            </tr>
-            '''
+            html += '<tr>'
+            html += '<td style="padding: 8px; border-bottom: 1px solid #ddd;">' + str(item.flower.name) + '</td>'
+            html += '<td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: center;">' + str(item.quantity) + '</td>'
+            html += '<td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">' + f'{item.price_at_time:.2f}' + ' ₽</td>'
+            html += '<td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;"><strong>' + f'{item.get_total_price():.2f}' + ' ₽</strong></td>'
+            html += '</tr>'
         
-        html += f'''
-        <tr style="background-color: #f9f9f9; font-weight: bold;">
-            <td colspan="3" style="padding: 8px; text-align: right;">ИТОГО:</td>
-            <td style="padding: 8px; text-align: right;">{obj.total_price:.2f} ₽</td>
-        </tr>
-        '''
+        html += '<tr style="background-color: #f9f9f9; font-weight: bold;">'
+        html += '<td colspan="3" style="padding: 8px; text-align: right;">ИТОГО:</td>'
+        html += '<td style="padding: 8px; text-align: right;">' + f'{obj.total_price:.2f}' + ' ₽</td>'
+        html += '</tr>'
         html += '</table>'
-        return format_html(html)
+        return mark_safe(html)
     get_items_display.short_description = 'Состав заказа'
     
     def confirm_orders(self, request, queryset):
@@ -308,7 +291,7 @@ class OrderAdmin(admin.ModelAdmin):
         self.message_user(request, f'{updated} заказ(ов) отмечены как доставленные')
     mark_as_delivered.short_description = 'Отметить как доставленные'
 
-# ========== РЕГИСТРАЦИЯ МОДЕЛЕЙ ==========
+
 
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(Flower, FlowerAdmin)
