@@ -1,0 +1,266 @@
+.about-page {
+    padding: 80px 0;
+}
+
+.page-title {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 2.5rem;
+    color: var(--dark-color);
+    position: relative;
+    padding-bottom: 15px;
+}
+
+.page-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background-color: var(--primary-color);
+}
+
+.about-content {
+    display: flex;
+    align-items: center;
+    gap: 50px;
+    margin-top: 40px;
+    margin-bottom: 60px;
+}
+
+.about-img {
+    flex: 1;
+    height: 400px;
+    background-size: cover;
+    background-position: center;
+    border-radius: 10px;
+}
+
+.about-text {
+    flex: 1;
+}
+
+.about-text p {
+    margin-bottom: 20px;
+}
+
+.team {
+    padding: 60px 0;
+    background-color: #f9f3f6;
+}
+
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+.team-member {
+    text-align: center;
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.member-photo {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    margin: 0 auto 20px;
+}
+
+/* Секция с картой и контактами */
+.map-section {
+  padding: 80px 0;
+  background-color: var(--light-color);
+}
+
+.map-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: center;
+}
+
+.map-info h2 {
+  font-size: 2rem;
+  margin-bottom: 30px;
+  color: var(--dark-color);
+  position: relative;
+  padding-bottom: 15px;
+}
+
+.map-info h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 80px;
+  height: 3px;
+  background-color: var(--primary-color);
+}
+
+.contact-details {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 25px;
+}
+
+.contact-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.contact-item i {
+  font-size: 1.5rem;
+  color: var(--primary-color);
+  margin-top: 5px;
+}
+
+.contact-item h3 {
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+  color: var(--dark-color);
+}
+
+.contact-item p {
+  color: var(--secondary-color);
+  line-height: 1.5;
+}
+
+.map-wrapper {
+  height: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+/* ========== АДАПТИВНОСТЬ СТРАНИЦЫ О НАС ========== */
+
+@media (max-width: 1024px) {
+    .about-page {
+        padding: 60px 0;
+    }
+    
+    .page-title {
+        font-size: 2rem;
+    }
+    
+    .team-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+    }
+}
+
+@media (max-width: 768px) {
+    .about-page {
+        padding: 40px 0;
+    }
+    
+    .page-title {
+        font-size: 1.5rem;
+    }
+    
+    .about-content {
+        flex-direction: column;
+        gap: 30px;
+    }
+    
+    .about-img {
+        height: 250px;
+        width: 100%;
+    }
+    
+    .about-text p {
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+    }
+    
+    .team {
+        padding: 40px 0;
+    }
+    
+    .team-grid {
+        grid-template-columns: 1fr;
+        max-width: 300px;
+        margin-left: auto;
+        margin-right: auto;
+        gap: 20px;
+    }
+    
+    .team-member {
+        padding: 20px;
+    }
+    
+    .member-photo {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .map-section {
+        padding: 40px 0;
+    }
+    
+    .map-container {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+    
+    .map-info h2 {
+        font-size: 1.5rem;
+        text-align: center;
+    }
+    
+    .map-info h2::after {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    
+    .contact-details {
+        gap: 20px;
+    }
+    
+    .contact-item {
+        justify-content: center;
+    }
+    
+    .map-wrapper {
+        height: 300px;
+    }
+}
+
+@media (max-width: 480px) {
+    .about-img {
+        height: 200px;
+    }
+    
+    .page-title {
+        font-size: 1.3rem;
+    }
+    
+    .map-wrapper {
+        height: 250px;
+    }
+    
+    .contact-item {
+        gap: 12px;
+    }
+    
+    .contact-item i {
+        font-size: 1.2rem;
+    }
+    
+    .contact-item h3 {
+        font-size: 0.9rem;
+    }
+    
+    .contact-item p {
+        font-size: 0.8rem;
+    }
+}
