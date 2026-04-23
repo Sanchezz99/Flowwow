@@ -240,11 +240,11 @@
                 <form id="login-form" class="auth-form">
                     <div class="auth-form-field">
                         <label>Логин</label>
-                        <input type="text" id="login-username" required>
+                        <input type="text" id="login-username" required maxlength="20">
                     </div>
                     <div class="auth-form-field">
                         <label>Пароль</label>
-                        <input type="password" id="login-password" required>
+                        <input type="password" id="login-password" required maxlength="30">
                     </div>
                     <div class="auth-error" id="login-error"></div>
                     <button type="submit" class="auth-submit-btn">Войти</button>
@@ -254,11 +254,11 @@
                 <form id="register-form" class="auth-form hidden">
                     <div class="auth-form-field">
                         <label>Логин</label>
-                        <input type="text" id="register-username" required>
+                        <input type="text" id="register-username" required maxlength="20">
                     </div>
                     <div class="auth-form-field">
                         <label>Пароль</label>
-                        <input type="password" id="register-password" required>
+                        <input type="password" id="register-password" required maxlength="30">
                     </div>
                     <div class="auth-error" id="register-error"></div>
                     <button type="submit" class="auth-submit-btn">Зарегистрироваться</button>
@@ -285,15 +285,15 @@
                 </div>
                 <div class="profile-form-field">
                     <label>Текущий пароль</label>
-                    <input type="password" id="currentPassword" placeholder="Введите текущий пароль">
+                    <input type="password" id="currentPassword" placeholder="Введите текущий пароль"  required maxlength="30">
                 </div>
                 <div class="profile-form-field">
                     <label>Новый пароль</label>
-                    <input type="password" id="newPassword" placeholder="Введите новый пароль">
+                    <input type="password" id="newPassword" placeholder="Введите новый пароль" required maxlength="30">
                 </div>
                 <div class="profile-form-field">
                     <label>Подтвердите новый пароль</label>
-                    <input type="password" id="confirmPassword" placeholder="Подтвердите новый пароль">
+                    <input type="password" id="confirmPassword" placeholder="Подтвердите новый пароль" required maxlength="30">
                 </div>
             </div>
         <div class="auth-modal-footer">
